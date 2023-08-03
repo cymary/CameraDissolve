@@ -1,0 +1,49 @@
+
+def CameraDissolve():
+    # select nodes
+    sNodes = nuke.selectedNodes()
+
+    # name the Cameraw
+    aCamNode = sNodes[-1]
+    bCamNode = sNodes[0]
+
+    # get Camera Name 
+    aCamName = aCamNode.name()
+    bCamName = bCamNode.name()
+
+
+    print (aCamNode.name())
+    print (bCamNode.name())
+
+    # DisSelected Node
+    for node in sNodes:
+        node['selected'].setValue(0)
+
+    # Create new Camera
+    nCamera = nuke.createNode('Camera3')
+    nCamera['tile_color'].setValue(0x7f00ffff)
+    nCamera['name'].setValue('CameraDissolve')
+
+    # Create CamDissove
+
+    camMixSliderKnob = nuke.Double_Knob('camDissolve','Camera Dissolve')
+    nCamera.addKnob(camMixSliderKnob)
+
+    # Get All The Knob Would Like to Blend
+
+    knobsList =[
+    'translate','rotate','scaling','uniform_scale','skew',
+    'pivot_translate','pivot_rotate','focal','haperture','vaperture',
+    'near','far','win_translate','win_scale','winroll','focal_point','fstop'
+    ]
+
+    #setup the expression and 
+
+
+
+    for knob in knobsList:
+        
+        nCamera[knob].setExpression('lerp({}.{},{}.{},{})'.format(aCamName,knob,bCamName,knob,'camDissolve'))
+        
+        
+CameraDissolve()
