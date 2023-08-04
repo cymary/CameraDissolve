@@ -22,12 +22,24 @@ def CameraDissolve():
     # Create new Camera
     nCamera = nuke.createNode('Camera3')
     nCamera['tile_color'].setValue(0x7f00ffff)
-    nCamera['name'].setValue('CameraDissolve')
+    nCamera['label'].setValue('CameraDissolve')
 
-    # Create CamDissove
 
+    # Create custom CamDissove tag and knobs 
+    camMixSliderTab = nuke.Tab_Knob('cameraDissolveTab', 'CamDissolve')
+    aCamTimeOffsetknob = nuke.Int_Knob('aCameraOffset', 'A Cam Time Offset',0)
+    bCamTimeOffsetknob = nuke.Int_Knob('bCameraOffset', 'B Cam Time Offset',0)   
     camMixSliderKnob = nuke.Double_Knob('camDissolve','Camera Dissolve')
-    nCamera.addKnob(camMixSliderKnob)
+    
+    # Collect all the knob as List
+
+    panelKnobs = [camMixSliderTab,aCamTimeOffsetknob,bCamTimeOffsetknob,camMixSliderKnob]
+    
+    # Add all the knobs to Panel 
+    
+    for panelKnobs in panelKnobs:
+        nCamera.addKnob(panelKnobs) 
+   
 
     # Get All The Knob Would Like to Blend
 
@@ -37,13 +49,23 @@ def CameraDissolve():
     'near','far','win_translate','win_scale','winroll','focal_point','fstop'
     ]
 
-    #setup the expression and 
+    #aCamOffsetValue = int(nCamera['aCameraOffset'].getValue())
+    #bCamOffsetValue = int(nCamera['bCameraOffset'].getValue())
+
+    #aCamOffsetExpressionText = '({}-{})'.format('frame',aCameraOffset)
+    #bCamOffsetExpressionText = '({}-{})'.format('frame',bCameraOffset)
+    #print (aCamOffsetExpressionText)    
+
+
+    #setup the expression  
 
 
 
     for knob in knobsList:
         
-        nCamera[knob].setExpression('lerp({}.{},{}.{},{})'.format(aCamName,knob,bCamName,knob,'camDissolve'))
+        nCamera[knob].setExpression('lerp({}.{}{},{}.{}{},{})'.format(aCamName,knob,'(frame-aCameraOffset)',bCamName,knob,'(frame-bCameraOffset)','camDissolve'))
         
         
 CameraDissolve()
+
+
