@@ -1,12 +1,13 @@
+
 def CameraDissolve():
     # select nodes
     sNodes = nuke.selectedNodes()
 
-    # name the Cameraw
+    # Get Camera
     aCamNode = sNodes[-1]
     bCamNode = sNodes[0]
 
-    # get Camera Name 
+    # Get Camera Name 
     aCamName = aCamNode.name()
     bCamName = bCamNode.name()
 
@@ -24,15 +25,42 @@ def CameraDissolve():
     nCamera['label'].setValue('CameraDissolve')
 
 
+
+    #Prepare Reference Camera Python expression content 
+
+    deselectAllNodes = '[n.knob("selected").setValue(False) for n in nuke.allNodes()]'
+    
+    pySelectACam = 'nuke.toNode(\'%s\')["selected"].setValue(1)'%aCamName
+    pySelectBCam = 'nuke.toNode(\'%s\')["selected"].setValue(1)'%bCamName
+    
+    
+    
+    
+    
+    pyCopyCamToMem = 'nuke.nodeCopy("%clipboard%")'
+    pypasteRetimeCam = 'RetimeCam = nuke.nodePaste("%clipboard%")'
+
+    pyDisconnectAll = 'RetimeCam.setInput(0, None)'
+    pyLabel = 'RetimeCam["label"].setValue("Retimed")'
+    
+    #combine all the python code inside the script botton
+    
+    aCamRetimePyContent = '{}{}{}{}{}{}{}{}{}{}{}'.format(deselectAllNodes,'\n',pySelectACam,'\n',pyCopyCamToMem,'\n',pypasteRetimeCam,'\n',pyDisconnectAll,'\n',pyLabel)
+    bCamRetimePyContent = '{}{}{}{}{}{}{}{}{}{}{}'.format(deselectAllNodes,'\n',pySelectBCam,'\n',pyCopyCamToMem,'\n',pypasteRetimeCam,'\n',pyDisconnectAll,'\n',pyLabel)
+
+
+    
     # Create custom CamDissove tag and knobs 
     camMixSliderTab = nuke.Tab_Knob('cameraDissolveTab', 'CamDissolve')
     aCamTimeOffsetknob = nuke.Int_Knob('aCameraOffset', 'A Cam Time Offset',0)
     bCamTimeOffsetknob = nuke.Int_Knob('bCameraOffset', 'B Cam Time Offset',0)   
     camMixSliderKnob = nuke.Double_Knob('camDissolve','Camera Dissolve')
+    aCamRetimed = nuke.PyScript_Knob('aCamRetimed','Create Retimed A Cam',aCamRetimePyContent)
+    bCamRetimed = nuke.PyScript_Knob('bCamRetimed','Create Retimed B Cam',bCamRetimePyContent)   
     
     # Collect all the knob as List
 
-    panelKnobs = [camMixSliderTab,aCamTimeOffsetknob,bCamTimeOffsetknob,camMixSliderKnob]
+    panelKnobs = [camMixSliderTab,aCamTimeOffsetknob,aCamRetimed,bCamTimeOffsetknob,bCamRetimed,camMixSliderKnob]
     
     # Add all the knobs to Panel 
     
@@ -48,15 +76,6 @@ def CameraDissolve():
     'near','far','win_translate','win_scale','winroll','focal_point','fstop'
     ]
 
-    #aCamOffsetValue = int(nCamera['aCameraOffset'].getValue())
-    #bCamOffsetValue = int(nCamera['bCameraOffset'].getValue())
-
-    #aCamOffsetExpressionText = '({}-{})'.format('frame',aCameraOffset)
-    #bCamOffsetExpressionText = '({}-{})'.format('frame',bCameraOffset)
-    #print (aCamOffsetExpressionText)    
-
-
-    #setup the expression  
 
 
 
@@ -66,6 +85,7 @@ def CameraDissolve():
         
         
 CameraDissolve()
+
 
 
 
