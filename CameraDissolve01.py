@@ -1,7 +1,7 @@
 #this works on the nuke v014.0v3 best
 # need to color the camera to red
 #camera in ord version is camera 2 mayneed switch
-
+# neeed to record the turotial , best with camera projection demonstrate
 
 def CameraDissolve():
     # select nodes
